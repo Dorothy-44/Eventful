@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  CREATOR
+  EVENTEE
+}
+
+enum TicketStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  USED
+}
+
+enum NotificationType {
+  REMINDER_3_DAYS
+  REMINDER_1_DAY
+  EVENT_CREATED
+  TICKET_PURCHASED
+  EVENT_UPDATED
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  username      String         @unique
+  password      String
+  firstName     String?
+  lastName      String?
+  role          Role           @default(EVENTEE)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  
+  // Relations
+  events        Event[]        @relation("CreatedEvents")
+  tickets       Ticket[]
+  notifications Notification[]
+  
+  @@index([email])
+  @@index([username])
+}
+
+model Event {
+  id               String         @id @default(uuid())
+  title            String
+  description      String         @db.Text
+  location         String
+  eventDate        DateTime
+  ticketPrice      Decimal        @db.Decimal(10, 2)
+  totalTickets     Int
+  availableTickets Int
+  imageUrl         String?
+  isActive         Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  
+  creatorId        String
+  creator          User           @relation("CreatedEvents", fields: [creatorId], references: [id], onDelete: Cascade)
+  
+  // Relations
+  tickets          Ticket[]
+  notifications    Notification[]
+  
+  @@index([creatorId])
+  @@index([eventDate])
+  @@index([isActive])
+}
+
+model Ticket {
+  id              String        @id @default(uuid())
+  ticketNumber    String        @unique
+  qrCode          String        @db.Text
+  status          TicketStatus  @default(PENDING)
+  purchaseDate    DateTime      @default(now())
+  scannedAt       DateTime?
+  
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  eventId         String
+  event           Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  paymentId       String?       @unique
+  payment         Payment?
+  
+  @@index([userId])
+  @@index([eventId])
+  @@index([ticketNumber])
+}
+
+model Payment {
+  id               String    @id @default(uuid())
+  amount           Decimal   @db.Decimal(10, 2)
+  reference        String    @unique
+  status           String
+  paystackResponse Json?
+  createdAt        DateTime  @default(now())
+  
+  ticketId         String    @unique
+  ticket           Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  
+  @@index([reference])
+}
+
+model Notification {
+  id              String           @id @default(uuid())
+  type            NotificationType
+  title           String
+  message         String           @db.Text
+  isRead          Boolean          @default(false)
+  scheduledFor    DateTime?
+  sentAt          DateTime?
+  createdAt       DateTime         @default(now())
+  
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  eventId         String?
+  event           Event?           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, isRead])
+  @@index([scheduledFor])
+}
