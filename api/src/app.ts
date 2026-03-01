@@ -44,10 +44,19 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// 5. Rate limiting - Temporarily commented out to prevent debugging lockouts
-// app.use(generalLimiter); 
+
 
 // Health check
+// 5. Base Route & Health Check
+app.get('/', (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Welcome to the Groove API! 🥳',
+    version: '1.0.0',
+    status: 'Operational'
+  });
+});
+
 app.get('/health', (_req, res) => {
   res.status(200).json({
     success: true,
