@@ -1,9 +1,6 @@
 import cron from 'node-cron';
 import prisma from '../config/database';
 
-/**
- * Check and send reminders for upcoming events
- */
 const checkReminders = async () => {
   try {
     const now = new Date();

@@ -2,9 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { validationResult, ValidationChain } from 'express-validator';
 import { validationErrorResponse } from '../utils/response';
 
-/**
- * Validation middleware - checks express-validator results
- */
+
 export const validate = (
   req: Request,
   res: Response,
@@ -21,12 +19,9 @@ export const validate = (
     return validationErrorResponse(res, formattedErrors);
   }
 
-  return next(); // Added 'return' here for consistency
+  return next(); 
 };
 
-/**
- * Run validations and return middleware
- */
 export const runValidations = (validations: ValidationChain[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     // Run all validations
@@ -44,8 +39,7 @@ export const runValidations = (validations: ValidationChain[]) => {
 
       return validationErrorResponse(res, formattedErrors);
     }
-
-    // THIS IS THE FIX: Added 'return' keyword
+  
     return next(); 
   };
 };

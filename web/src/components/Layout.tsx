@@ -18,12 +18,7 @@ import {
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
 
-// 1. ADD: Props interface to accept children
-interface LayoutProps {
-  children?: React.ReactNode;
-}
-
-const Layout = ({ children }: LayoutProps) => {
+const Layout = () => {
   const { user, logout, theme, toggleTheme } = useApp();
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
@@ -43,8 +38,7 @@ const Layout = ({ children }: LayoutProps) => {
 
   const handleLogout = () => {
     logout();
-    // 2. UPDATE: Matches your App.tsx public route
-    navigate('/auth'); 
+    navigate('/auth');
   };
 
   const creatorLinks = [
@@ -66,6 +60,7 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="layout">
+      {/* NAVBAR */}
       <nav className="navbar">
         <div className="navbar-content">
           <Link to="/" className="navbar-brand">
@@ -77,16 +72,22 @@ const Layout = ({ children }: LayoutProps) => {
             <span className="navbar-welcome">
               Welcome, <strong>{user?.username}</strong>
             </span>
-            <Link to="/notifications" className="navbar-icon-btn">
+
+            <button className="navbar-icon-btn">
               <Bell size={20} />
-              {unreadCount > 0 && <span className="navbar-badge">{unreadCount}</span>}
-            </Link>
+              {unreadCount > 0 && (
+                <span className="navbar-badge">{unreadCount}</span>
+              )}
+            </button>
+
             <button onClick={toggleTheme} className="navbar-icon-btn">
               {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
             </button>
-            <Link to="/profile" className="navbar-icon-btn">
+
+            <button className="navbar-icon-btn">
               <User size={20} />
-            </Link>
+            </button>
+
             <button onClick={handleLogout} className="navbar-icon-btn">
               <LogOut size={20} />
             </button>
@@ -94,6 +95,7 @@ const Layout = ({ children }: LayoutProps) => {
         </div>
       </nav>
 
+      {/* SIDEBAR + CONTENT */}
       <div className="layout-container">
         <aside className="sidebar">
           <div className="sidebar-content">
@@ -103,7 +105,9 @@ const Layout = ({ children }: LayoutProps) => {
                   key={link.to}
                   to={link.to}
                   className={({ isActive }) =>
-                    `sidebar-link ${isActive ? 'sidebar-link-active' : ''}`
+                    `sidebar-link ${
+                      isActive ? 'sidebar-link-active' : ''
+                    }`
                   }
                 >
                   <link.icon size={20} />
@@ -115,8 +119,7 @@ const Layout = ({ children }: LayoutProps) => {
         </aside>
 
         <main className="layout-main">
-          {/* 3. UPDATE: This ensures nested Routes from App.tsx actually render */}
-          {children || <Outlet />}
+          <Outlet />
         </main>
       </div>
     </div>
