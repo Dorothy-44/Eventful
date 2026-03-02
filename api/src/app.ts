@@ -21,12 +21,14 @@ app.use(helmet({
   crossOriginResourcePolicy: false, // Allows images/resources to load across origins
 }));
 
-// 2. UPDATED CORS: This is the "Security Pass" for your Frontend
+// 2. UPDATED CORS: Add 5174 to this list
 app.use(
   cors({
     origin: [
       process.env.FRONTEND_URL || 'http://localhost:5173', 
+      'http://localhost:5174', 
       'http://127.0.0.1:5173',
+      'http://127.0.0.1:5174', 
       'http://localhost:5000'
     ],
     credentials: true,
